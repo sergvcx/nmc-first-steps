@@ -9,7 +9,7 @@ TARGETD  = @TARGET@d.abs
 
 CC       = nmc-g++
 AS       = nmc-gcc
-CXXFLAGS = -std=c++11 -O2 -Wall -mnmc4 -g
+CXXFLAGS = @CXXFLAGS@
 LIBS     = -Wl,--whole-archive @LIBS@  -Wl,--no-whole-archive  
 LIBSD    = -Wl,--whole-archive @LIBSD@ -Wl,--no-whole-archive  
 LDFLAGS  = -Wl,-Map=@TARGET@.map  -Wl,-T@LDS@
