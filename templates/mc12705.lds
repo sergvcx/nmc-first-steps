@@ -1,27 +1,44 @@
 MEMORY
 {
-  NMMB0 : ORIGIN = 0x00000800, LENGTH = 0x0000F800
-  NMMB1 : ORIGIN = 0x00010000, LENGTH = 0x00010000
-  NMMB2 : ORIGIN = 0x00020000, LENGTH = 0x00010000
-  NMMB3 : ORIGIN = 0x00030000, LENGTH = 0x00010000
-  NMMB4 : ORIGIN = 0x00040000, LENGTH = 0x00010000
-  NMMB5 : ORIGIN = 0x00050000, LENGTH = 0x00010000
-  NMMB6 : ORIGIN = 0x00060000, LENGTH = 0x00010000
-  NMMB7 : ORIGIN = 0x00070000, LENGTH = 0x00010000
-  EMI_CPU : ORIGIN = 0x00340000, LENGTH = 0x1FCC0000
+  NMMB0 :   ORIGIN = 0x00000200<<2, LENGTH = 0x00003e00<<2
+  NMMB1 :   ORIGIN = 0x00004000<<2, LENGTH = 0x00004000<<2
+  NMMB2 :   ORIGIN = 0x00008000<<2, LENGTH = 0x00004000<<2
+  NMMB3 :   ORIGIN = 0x0000c000<<2, LENGTH = 0x00004000<<2
+  NMMB4 :   ORIGIN = 0x00010000<<2, LENGTH = 0x00004000<<2
+  NMMB5 :   ORIGIN = 0x00014000<<2, LENGTH = 0x00004000<<2
+  NMMB6 :   ORIGIN = 0x00018000<<2, LENGTH = 0x00004000<<2
+  NMMB7 :   ORIGIN = 0x0001c000<<2, LENGTH = 0x00004000<<2
+  EMI_CPU : ORIGIN = 0x000d0000<<2, LENGTH = 0x07f30000<<2
+  
 }
 
 SECTIONS
 {
+  .stub : ALIGN(0x8)
+  {
+    *libnm6408_stub.a:*(.text)
+	*libnm6408_stub.a:*(.data)
+	*(.stub.*)
+	*(.stub_text)
+  } > EMI_CPU
+  
+  .load : ALIGN(0x8)
+  {
+    *libnm6408load_nmc.a:*(.text*);
+  } > EMI_CPU
+  
   .text : ALIGN(0x8)
   {
-    *(text);
+    *(.text.AAA);
+    *(.text);
   } > NMMB0
- 
-  .text_ddr : ALIGN(0x8)
+  
+  .shlak : ALIGN(0x8)
   {
-    *(.text.*);
+	*(.text.*)
   } > EMI_CPU
+  
+  
   
   .init : ALIGN(0x8)
   {
@@ -32,61 +49,7 @@ SECTIONS
   {
     *(.fini);
   } > NMMB0
-  
-  .data_imu0 : ALIGN(0x8)
-  {
-    *(.data_imu0);
-    *(.data_imu0.bss);
-  } > NMMB1
-  
-  .data_imu1 : ALIGN(0x8)
-  {
-    *(.data_imu1);
-    *(.data_imu1.bss);
-  } > NMMB1
-  
-  .data_imu2 : ALIGN(0x8)
-  {
-    *(.data_imu2);
-    *(.data_imu2.bss);
-  } > NMMB2
-  
-  .data_imu3 : ALIGN(0x8)
-  {
-    *(.data_imu3);
-    *(.data_imu3.bss);
-  } > NMMB3
-  
-  .data_imu4 : ALIGN(0x8)
-  {
-    *(.data_imu4);
-    *(.data_imu4.bss);
-  } > NMMB4
-  
-  .data_imu5 : ALIGN(0x8)
-  {
-    *(.data_imu5);
-    *(.data_imu5.bss);
-  } > NMMB5
-  
-  .data_imu6 : ALIGN(0x8)
-  {
-    *(.data_imu6);
-    *(.data_imu6.bss);
-  } > NMMB6
-  
-  .data_imu7 : ALIGN(0x8)
-  {
-    *(.data_imu7);
-    *(.data_imu7.bss);
-  } > NMMB7
-  
-  .data_ddr : ALIGN(0x8)
-  {
-    *(.data_ddr);
-    *(.data_ddr.bss);
-  } > EMI_CPU
-  
+
   .data : ALIGN(0x8)
   {
     *(.data);
@@ -100,18 +63,61 @@ SECTIONS
     *(.stack);
   } > NMMB7
 
-/************rpc . important ALIGN(0x8) in both *****/
-  .rpc_services.bss : ALIGN(0x8)
+  .data.imu0 : ALIGN(0x8)
   {
-    *(.rpc_services.bss);
-  } > EMI_CPU
-  .rpc_services : ALIGN(0x8)
+    *(.data.imu0);
+    *(.data.imu0.bss);
+  } > NMMB1
+  
+  .data.imu1 : ALIGN(0x8)
   {
-    *(.rpc_services);
+    *(.data.imu1);
+    *(.data.imu1.bss);
+  } > NMMB1
+  
+  .data.imu2 : ALIGN(0x8)
+  {
+    *(.data.imu2);
+    *(.data.imu2.bss);
+  } > NMMB2
+  
+  .data.imu3 : ALIGN(0x8)
+  {
+    *(.data.imu3);
+    *(.data.imu3.bss);
+  } > NMMB3
+  
+  .data.imu4 : ALIGN(0x8)
+  {
+    *(.data.imu4);
+    *(.data.imu4.bss);
+  } > NMMB4
+  
+  .data.imu5 : ALIGN(0x8)
+  {
+    *(.data.imu5);
+    *(.data.imu5.bss);
+  } > NMMB5
+  
+  .data.imu6 : ALIGN(0x8)
+  {
+    *(.data.imu6);
+    *(.data.imu6.bss);
+  } > NMMB6
+  
+  .data.imu7 : ALIGN(0x8)
+  {
+    *(.data.imu7);
+    *(.data.imu7.bss);
+  } > NMMB7
+  
+  .data.emi : ALIGN(0x8)
+  {
+    *(.data.emi);
+    *(.data.emi.bss);
   } > EMI_CPU
-/************rpc***************/
   
-  
+
   .heap : ALIGN(0x8)
   {
     *(.heap);
@@ -162,4 +168,19 @@ SECTIONS
     __HEAP_7_END = .;
   } > NMMB7
  
+ 
+ 
+ 
+/************rpc . important ALIGN(0x8) in both *****/
+  .rpc_services.bss : ALIGN(0x8)
+  {
+    *(.rpc_services.bss);
+  } > EMI_CPU
+  .rpc_services : ALIGN(0x8)
+  {
+    *(.rpc_services);
+  } > EMI_CPU
+/************rpc***************/
+  
+  
 }

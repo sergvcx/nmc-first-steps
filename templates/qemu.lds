@@ -11,16 +11,12 @@ MEMORY
 
 SECTIONS
 {
-  .text_int : ALIGN(0x8)
+  .text : ALIGN(0x8)
   {
     *(text);
   } > C0_IMU0
  
-  .text_ddr : ALIGN(0x8)
-  {
-    *(.text.*);
-  } > EMI
-  
+
   .init : ALIGN(0x8)
   {
     *(.init);
@@ -31,37 +27,6 @@ SECTIONS
     *(.fini);
   } > C0_IMU0
   
-  .data_imu0 : ALIGN(0x8)
-  {
-    *(.data_imu0);
-    *(.data_imu0.bss);
-  } > C0_IMU0
-  
-  .data_imu1 : ALIGN(0x8)
-  {
-    *(.data_imu1);
-    *(.data_imu1.bss);
-  } > C0_IMU1
-  
-  .data_imu2 : ALIGN(0x8)
-  {
-    *(.data_imu2);
-    *(.data_imu2.bss);
-  } > C0_IMU2
-  
-  .data_imu3 : ALIGN(0x8)
-  {
-    *(.data_imu3);
-    *(.data_imu3.bss);
-  } > C0_IMU3
-  
-
-  
-  .data_ddr : ALIGN(0x8)
-  {
-    *(.data_ddr);
-    *(.data_ddr.bss);
-  } > EMI
   .data : ALIGN(0x8)
   {
     *(.data);
@@ -75,18 +40,45 @@ SECTIONS
     *(.stack);
   } > C0_IMU3
   
-
-/************rpc . important ALIGN(0x8) in both *****/
-  .rpc_services.bss : ALIGN(0x8)
+  .data.imu0 : ALIGN(0x8)
   {
-    *(.rpc_services.bss);
-  } > EMI
-  .rpc_services : ALIGN(0x8)
-  {
-    *(.rpc_services);
-  } > EMI
-/************rpc***************/
+    *(.data.imu0);
+    *(.data.imu0.bss);
+  } > C0_IMU0
   
+  .data.imu1 : ALIGN(0x8)
+  {
+    *(.data.imu1);
+    *(.data.imu1.bss);
+  } > C0_IMU1
+  
+  .data.imu2 : ALIGN(0x8)
+  {
+    *(.data.imu2);
+    *(.data.imu2.bss);
+  } > C0_IMU2
+  
+  .data.imu3 : ALIGN(0x8)
+  {
+    *(.data.imu3);
+    *(.data.imu3.bss);
+  } > C0_IMU3
+  
+
+  .text.emi : ALIGN(0x8)
+  {
+    *(.text.*);
+  } > EMI
+  
+  
+  .data.emi : ALIGN(0x8)
+  {
+    *(.data_ddr);
+    *(.data_ddr.bss);
+  } > EMI
+
+  
+
   .heap : ALIGN(0x8)
   {
     *(.heap);
@@ -114,6 +106,18 @@ SECTIONS
     . = ORIGIN(C0_IMU3) + LENGTH(C0_IMU3);
     __HEAP_3_END = .;
   } > C0_IMU3
+  
+  
+/************rpc . important ALIGN(0x8) in both *****/
+  .rpc_services.bss : ALIGN(0x8)
+  {
+    *(.rpc_services.bss);
+  } > EMI
+  .rpc_services : ALIGN(0x8)
+  {
+    *(.rpc_services);
+  } > EMI
+/************rpc***************/
   
   
 }

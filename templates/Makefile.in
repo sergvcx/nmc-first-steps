@@ -10,12 +10,12 @@ TARGETD  = @TARGET@d.abs
 CC       = nmc-g++
 AS       = nmc-gcc
 CXXFLAGS = @CXXFLAGS@
-LIBS     = -Wl,--whole-archive @LIBS@  -Wl,--no-whole-archive  
-LIBSD    = -Wl,--whole-archive @LIBSD@ -Wl,--no-whole-archive  
+LIBS     = @LIBS@
+LIBSD    = @LIBSD@ 
 LDFLAGS  = -Wl,-Map=@TARGET@.map  -Wl,-T@LDS@
 LDFLAGSD = -Wl,-Map=@TARGET@d.map -Wl,-T@LDS@ 
 INC_DIRS = -I"$(@BOARD_ENV@)/include" 
-LIB_DIRS = -L"$(@BOARD_ENV@)/lib" -L"$(NMCGCC)/lib" 
+LIB_DIRS = -L"$(@BOARD_ENV@)/lib" 
 SOURCES  = @SRC_FILES@
 
 .DEFAULT_GOAL := all
@@ -23,9 +23,11 @@ SOURCES  = @SRC_FILES@
 all: $(TARGET) $(TARGETD)
 
 $(TARGET): $(SOURCES) Makefile 
+	@echo ----------------------
 	$(CC)  -o$(TARGET) $(CXXFLAGS) $(LDFLAGS)  $(INC_DIRS) $(LIB_DIRS) $(LIBS)  $(SOURCES)
 
 $(TARGETD): $(SOURCES) Makefile 
+	@echo ----------------------
 	$(CC)  -o$(TARGETD) $(CXXFLAGS) $(LDFLAGSD) $(INC_DIRS) $(LIB_DIRS) $(LIBSD) $(SOURCES)
 	
 run: 
