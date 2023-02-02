@@ -80,7 +80,7 @@ include::./step01/step01.asciidoc[]
 - make_mb7707   - плата МВ 77.07 (К1879ХБ1Я)
 - make_mc12101   - плата МC 121.01 (1879ВЯ6Я) 
 
-Для платы МC 121.01 доступны доп. конфигуриации:  
+Для платы МC 121.01 доступны доп. конфигурации:  
 - make_mc12101_nmpu1-gcc-cfg - ядро 1(int core) сборка nm-gcc + cfg-файл конфиграции
 - make_mc12101_nmpu1-gcc-ld  - ядро 1(int core) сборка nm-gcc + lds-файл конфиграции  
 - make_mc12101_nmpu1-legacy  - ядро 1(int core) сборка старым SDK 

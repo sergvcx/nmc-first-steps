@@ -69,12 +69,27 @@ list(APPEND nmc4i_s_files 	${s_files})
 
 function(CONFIGURE_TEST TEST_DIR BOARD CORE )	
 	set(ARCH NM6407)
-	MESSAGE("######## BOARD ${BOARD} / ${TEST_DIR}")
-	set(TEST_NAME ${TEST_DIR})
+	
+	get_filename_component(TEST_NAME ${TEST_DIR} NAME)
+	
 	file(GLOB 	s_files 	${TEST_DIR}/*.S)
 	file(GLOB 	cpp_files 	${TEST_DIR}/*.cpp)
+	file(GLOB 	c_files 	${TEST_DIR}/*.c)
 	
-	MESSAGE("######## BOARD ${BOARD} / ${TEST_DIR} / ${s_files}")
+	set(SRC_DIRS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/${TEST_DIR})
+	
+	list(APPEND SRC_LIST ${s_files})
+	list(APPEND SRC_LIST ${cpp_files})
+	list(APPEND SRC_LIST ${c_files})
+	
+	list(LENGTH SRC_LIST SRC_COUNT)
+
+	MESSAGE("### BOARD: ${BOARD} :${CORE} : ${TEST_DIR} : ${TEST_NAME} : ${SRC_FILES}")	
+	#MESSAGE("###  ${SRC_COUNT}")	
+	if (NOT SRC_COUNT  )
+		return()
+	endif()	
+	
 	#add_executable(${TEST_NAME}  ${s_files})
 	#list(APPEND dir_list ".")
 	
@@ -109,16 +124,20 @@ function(CONFIGURE_TEST TEST_DIR BOARD CORE )
 	string(TOUPPER ${BOARD} BOARD_ENV)
 	
 	
-	set(SRC_DIRS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/${TEST_DIR})
-	set(SRC_FILES "${s_files} ${cpp_files}") 
+		
+	STRING(REPLACE ";" " " SRC_FILES "${SRC_LIST}")
+	
 	set(TARGET test)
+	
+	
+	
 	#set(BOARD_ENV "{BOARD_UP})")
-
+	
 	set(BOARD_DIR ${BOARD}${CORE})
 	
 	#LIST(APPEND CMAKE_PROGRAM_PATH  $ENV{NMC_GCC_TOOLPATH} )
 	#NMC_GCC_TOOLPATH
-
+	
 	set(GCC_EXEC_PREFIX "/cygdrive/$ENV{NMC_GCC_TOOLPATH}/nmc4-ide/lib/gcc/")
 	STRING(REPLACE "\\" "/" GCC_EXEC_PREFIX ${GCC_EXEC_PREFIX})
 	STRING(REPLACE ":" "" GCC_EXEC_PREFIX ${GCC_EXEC_PREFIX})
@@ -142,14 +161,19 @@ endfunction()
 set(CMAKE_TOOLCHAIN_FILE "../nmc-gcc-compile.cmake")
 project(${TEST_NAME} VERSION 0.1.0 LANGUAGES CXX C ASM)
 
+set(steps_risc step01 step02 step03 step03a step04 step04a) 
+set(steps_fixed step05 step06 step06a step06b step07 step08 step09 step10 step11 step12 step13 step13a step14) 
+set(steps_float steps-float/stepf01 steps-float/stepf02 steps-float/stepf02a steps-float/stepf02b) 
+
 if ( BOARD STREQUAL "mc5103")
-	set(dir_list step01 step02 step03 step03a step04 step04a step05 step06 step06a step06b step07 step08 step09 step10 step11 step12 step13 step13a step14 )
+	set(dir_list ${steps_fixed} )
 	set(CXXFLAGS "-std=c++11 -O2 -Wall -mnmc3 -g")
 	set(LIBS  	"-Wl,--whole-archive -lmc5103lib -Wl,--no-whole-archive")
 	set(LIBSD 	"-Wl,--whole-archive -lmc5103lib -Wl,--no-whole-archive")
 	set(LDS 	"${BOARD}.lds")
 	set(RUN  	"${BOARD}run ")
 	set(RUND 	"${BOARD}run ")
+	set(TEST 	"${BOARD}run ")
 	set(MONITOR "")
 	
 	foreach(dir ${dir_list})
@@ -159,13 +183,14 @@ endif()
 
 
 if ( BOARD STREQUAL "mb7707")
-	set(dir_list step01 step02 step03 step03a step04 step04a step05 step06 step06a step06b step07 step08 step09 step10 step11 step12 step13 step13a step14 )
+	set(dir_list ${steps_fixed} )
 	set(CXXFLAGS "-std=c++11 -O2 -Wall -mnmc3 -g")
 	set(LIBS  	"-Wl,--whole-archive -lmb7707lib -Wl,--no-whole-archive")
 	set(LIBSD 	"-Wl,--whole-archive -lmb7707lib -Wl,--no-whole-archive")
 	set(LDS 	"${BOARD}.lds")
-	set(RUN  	"${BOARD}run ")
-	set(RUND 	"${BOARD}run ")
+	set(RUN  	"${BOARD}run -a${MAC}")
+	set(RUND 	"${BOARD}run -a${MAC}")
+	set(TEST 	"${BOARD}run -a${MAC}")
 	set(MONITOR "")
 	
 	foreach(dir ${dir_list})
@@ -174,14 +199,15 @@ if ( BOARD STREQUAL "mb7707")
 endif()	
 
 
-if ( BOARD STREQUAL "mc12101")
-	set(dir_list step01 step02 step03 step03a step04 step04a step05 step06 step06a step06b step07 step08 step09 step10 step11 step12 step13 step13a step14 )
+if ( BOARD STREQUAL "mc12101" AND CORE STREQUAL "-nmpu1")
+	set(dir_list ${steps_risc} ${steps_fixed} )
 	set(CXXFLAGS "-std=c++11 -O2 -Wall -mnmc4-fixed -g")
-	set(LIBS  	"-Wl,--whole-archive -lnm6407_io_nmc -lmc12101load_nm -Wl,--no-whole-archive")
-	set(LIBSD 	"-Wl,--whole-archive -lnm6407_io_nmc -lmc12101_stub_nmc4_fixed -Wl,--no-whole-archive")
+	set(LIBS  	"-lc -Wl,--whole-archive -lnm6407_io_nmc -lmc12101load_nm -Wl,--no-whole-archive")
+	set(LIBSD 	"-lc -Wl,--whole-archive -lnm6407_io_nmc -lmc12101_stub_nmc4_fixed -Wl,--no-whole-archive")
 	set(LDS 	"${BOARD}-nmpu1.lds")
-	set(RUN  	"${BOARD}run -p -v -R -a1")
-	set(RUND 	"${BOARD}run -p -v -R -a1")
+	set(RUN  	"${BOARD}run -p -R -a1 -v")
+	set(RUND 	"${BOARD}run -p -R -a1 -v")
+	set(TEST 	"${BOARD}run -p -R -a1")
 	set(MONITOR "nmc-monitor")
 	
 	foreach(dir ${dir_list})
@@ -189,14 +215,32 @@ if ( BOARD STREQUAL "mc12101")
     endforeach()
 endif()	
 
+if ( BOARD STREQUAL "mc12101" AND CORE STREQUAL "-nmpu0")
+	set(dir_list ${steps_risc} ${steps_float} )
+	set(CXXFLAGS "-std=c++11 -O2 -Wall -mnmc4-float -g")
+	set(LIBS  	"-lc -Wl,--whole-archive -lnm6407_io_nmc -lmc12101load_nm -Wl,--no-whole-archive")
+	set(LIBSD 	"-lc -Wl,--whole-archive -lnm6407_io_nmc -lmc12101_stub_nmc4_float -Wl,--no-whole-archive")
+	set(LDS 	"${BOARD}-nmpu0.lds")
+	set(RUN  	"${BOARD}run -p -R -a0 -v")
+	set(RUND 	"${BOARD}run -p -R -a0 -v")
+	set(TEST 	"${BOARD}run -p -R -a0")
+	set(MONITOR "nmc-monitor")
+	
+	foreach(dir ${dir_list})
+		CONFIGURE_TEST(${dir} ${BOARD} "-nmpu0")
+    endforeach()
+endif()	
+
+
 if ( BOARD STREQUAL "mc12705")
-	set(dir_list step01 step02 step03 step03a step04 step04a )
+	set(dir_list ${steps_risc} )
 	set(CXXFLAGS "-std=c++11 -O2 -Wall -mnmc4-float -g")
 	set(LIBS  	"-Wl,--whole-archive -lnm6408load_nmc -lnmc_io -Wl,--no-whole-archive")
 	set(LIBSD 	"-Wl,--whole-archive -lnm6408load_nmc -lnmc_io -lnm6408_stub -Wl,--no-whole-archive")
 	set(LDS 	"${BOARD}.lds")
-	set(RUN  	"${BOARD}run -c0 -n0")
-	set(RUND 	"${BOARD}run -c0 -n0")
+	set(RUN  	"${BOARD}run -c0 -n0 -v")
+	set(RUND 	"${BOARD}run -c0 -n0 -v")
+	set(TEST 	"${BOARD}run -c0 -n0")
 	set(MONITOR "nmc-monitor")
 	
 	foreach(dir ${dir_list})
@@ -205,10 +249,10 @@ if ( BOARD STREQUAL "mc12705")
 endif()	
 
 if ( BOARD STREQUAL "qemu" )
-	set(dir_list step01 step02 step03 step03a step04 step04a step05 step06 step06a step06b step07 step08 step09 step10 step11 step12 step13 step13a step14 )
+	set(dir_list "${steps_risc} ${steps_fixed} ${steps_float}")
 	set(CXXFlAGS "-std=c++11 -O2 -Wall -mnmc4 -g")
-	set(LIBS  	"")
-	set(LIBSD 	"")
+	set(LIBS  	"-lc")
+	set(LIBSD 	"-lc")
 	set(LDS 	"qemu.lds")
 	set(RUN 	"nmc-qemu test.abs")
 	set(RUND 	"nmc-qemu -g 5555 $(TARGET)")

@@ -68,13 +68,9 @@ SECTIONS
   
   .text.emi : ALIGN(0x8)
   {
-	#if (ARCH == 0)
-		*libmc12101_stub_nmc4_float.a:*(.text)
-	#elif (ARCH == 1)
-		*libmc12101_stub_nmc4_fixed.a:*(.text)
-	#endif
+	*libmc12101_stub_nmc4_fixed.a:*(.text)
 
- } > Cx_IMU
+  } > Cx_IMU
 
 
     *(.text.*);
