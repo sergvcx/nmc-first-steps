@@ -1,1 +1,1 @@
-@RUN@ test.abs
+@RUNNER@ @RUNOPT@ @TARGET@

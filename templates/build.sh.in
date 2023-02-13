@@ -1,1 +1,1 @@
-nmc-g++  -otest.abs @CXXFLAGS@ -Wl,-Map=test.abs.map -Wl,-T@LDS@  -I"%@BOARD@%/include"  -L"%@BOARD@%/lib" @LIBS@ @SRC_FILES@ 
+nmc-gcc  -otest.abs @CXXFLAGS@ -Wl,-Map=test.abs.map -Wl,-T@LDS@  -I"%@BSP@%/include"  -L"%@BSP@%/lib" @SRC_FILES@ @LIBS@

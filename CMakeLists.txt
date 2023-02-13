@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
+enable_testing()
 #SET(CMAKE_MAKE_PROGRAM d:/programs/GnuWin32/bin/make.exe FORCE )
 #string(REGEX MATCH NM(d+). ARCH_VERSION ${ARCH})
 
@@ -64,14 +65,27 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/lib)
 
 
 
-list(APPEND nmc4i_s_files 	${s_files})
+#list(APPEND nmc4i_s_files 	${s_files})
 
+
+
+#message("#######dirs: ${dirs}")
+#return ()
+function(CONFIGURE_EXAMPLE TEMPL_DIR SRC_DIR BSP CORE LIBS LIBSD LDS RECIPE_RUN RECIPE_RUND RECIPE_TEST RECIPE_EXTRA)	
+
+endfunction()
+
+#
+#function(CONFIGURE_EXAMPLE TEMPL_DIR SRC_DIR DST_DIR BSP CORE LIBS LIBSD LDS RECIPE_RUN RECIPE_RUND RECIPE_EXTRA)	
+#
+#endfunction()
 
 function(CONFIGURE_TEST TEST_DIR BOARD CORE )	
-	set(ARCH NM6407)
+	#set(ARCH NM6407)
 	
-	get_filename_component(TEST_NAME ${TEST_DIR} NAME)
+	get_filename_component(STEP_NAME ${TEST_DIR} NAME)
 	
+	set(TEST_NAME test-${BOARD}${CORE}-${STEP_NAME}.abs)
 	file(GLOB 	s_files 	${TEST_DIR}/*.S)
 	file(GLOB 	cpp_files 	${TEST_DIR}/*.cpp)
 	file(GLOB 	c_files 	${TEST_DIR}/*.c)
@@ -83,57 +97,18 @@ function(CONFIGURE_TEST TEST_DIR BOARD CORE )
 	list(APPEND SRC_LIST ${c_files})
 	
 	list(LENGTH SRC_LIST SRC_COUNT)
+	
+	#MESSAGE("=== ${SRC_LIST}")	
+	list(JOIN SRC_LIST " " SRC_FILES)
+	
+	MESSAGE("### BOARD:${BOARD} core:${CORE} dir:${TEST_DIR} name:${STEP_NAME}") # src: ${SRC_FILES}")	
 
-	MESSAGE("### BOARD: ${BOARD} :${CORE} : ${TEST_DIR} : ${TEST_NAME} : ${SRC_FILES}")	
-	#MESSAGE("###  ${SRC_COUNT}")	
 	if (NOT SRC_COUNT  )
 		return()
 	endif()	
 	
-	#add_executable(${TEST_NAME}  ${s_files})
-	#list(APPEND dir_list ".")
-	
-	#set(TEST_NAME ${test_prefix}_${basename}_${board_core}_test)
-	
-	set(ld_script ./template/${BOARD}/${BOARD}${CORE}.lds)
-    
-	add_executable(${TEST_NAME} ${s_files})
-	#add_dependencies(${TEST_NAME} ${test_lib})
-	target_link_directories(${TEST_NAME} PUBLIC
-		${CMAKE_CURRENT_FUNCTION_LIST_DIR}/lib
-		${BOARD}/lib)
-	#target_link_libraries(${TEST_NAME} ${test_lib} ${extra_args})
-	target_include_directories(${TEST_NAME} PUBLIC            
-		${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include
-		${BOARD}/include
-		)
-	
-	target_link_options(${TEST_NAME} PUBLIC
-		-T${ld_script}
-		-Wl,--whole-archive -lmc12101load_nm -lnm6407_io_nmc -Wl,--no-whole-archive)
-	
-	#add_test(NAME ${TEST_NAME}
-	#	COMMAND mc12101run $<TARGET_FILE:${TEST_NAME}> -a${board_core} -p -v)
-	
-	#GENERATE_TESTS_MC12101(${DIR}  "mc12101_" ${ld_script} "nmpu${NMPU}" {} )
-	
-		
-	#add_custom_target(run ${BOARD}run -p -v ${TEST_NAME}.abs -R -a${NMPU} )		
-
-	#configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/common/config.h.in"            "${CMAKE_CURRENT_SOURCE_DIR}/include/config.h" )
-	string(TOUPPER ${BOARD} BOARD_ENV)
-	
-	
-		
-	STRING(REPLACE ";" " " SRC_FILES "${SRC_LIST}")
-	
+	string(TOUPPER ${BOARD} BSP)
 	set(TARGET test)
-	
-	
-	
-	#set(BOARD_ENV "{BOARD_UP})")
-	
-	set(BOARD_DIR ${BOARD}${CORE})
 	
 	#LIST(APPEND CMAKE_PROGRAM_PATH  $ENV{NMC_GCC_TOOLPATH} )
 	#NMC_GCC_TOOLPATH
@@ -143,15 +118,86 @@ function(CONFIGURE_TEST TEST_DIR BOARD CORE )
 	STRING(REPLACE ":" "" GCC_EXEC_PREFIX ${GCC_EXEC_PREFIX})
 	
 	configure_file ("./templates/Makefile.in"  			"${TEST_DIR}/${BOARD}${CORE}/Makefile" )
-	configure_file ("./templates/build.bat.in" 			"${TEST_DIR}/${BOARD}${CORE}/build.bat" )
-	configure_file ("./templates/run.bat.in"   			"${TEST_DIR}/${BOARD}${CORE}/run.bat" )
-	configure_file ("./templates/build.sh.in"  			"${TEST_DIR}/${BOARD}${CORE}/build.sh" )
 	configure_file ("./templates/${LDS}" 				"${TEST_DIR}/${BOARD}${CORE}/${LDS}" )
+	if (CMAKE_HOST_WIN32)
+		configure_file ("./templates/build.bat.in" 			"${TEST_DIR}/${BOARD}${CORE}/build.bat" )
+		configure_file ("./templates/run.bat.in"   			"${TEST_DIR}/${BOARD}${CORE}/run.bat" )
+	else()
+		configure_file ("./templates/build.sh.in"  			"${TEST_DIR}/${BOARD}${CORE}/build.sh" )
+		configure_file ("./templates/run.sh.in"   			"${TEST_DIR}/${BOARD}${CORE}/run.sh" )
+	endif()
+	
+	
+		#${LIBS}
+	#add_test(NAME ${TEST_NAME} COMMAND mc12101run $<TARGET_FILE:${TEST_NAME}> -a${board_core} -p -v)
+	
+	#add_test(NAME ${TEST_NAME}
+	#	COMMAND mc12101run $<TARGET_FILE:${TEST_NAME}> -a${board_core} -p -v)
+	
+	#GENERATE_TESTS_MC12101(${DIR}  "mc12101_" ${LDS} "nmpu${NMPU}" {} )
 	
 		
+	#add_custom_target(run ${BOARD}run -p -v ${TEST_NAME}.abs -R -a${NMPU} )		
+
+	#configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/common/config.h.in"            "${CMAKE_CURRENT_SOURCE_DIR}/include/config.h" )
+	#string(TOUPPER ${BOARD} BOARD_ENV)
 	
-	target_compile_options(${TEST_NAME} PUBLIC $<$<COMPILE_LANGUAGE:C,CXX>:-mnmc4-fixed;-O2>)	
-	target_compile_options(${TEST_NAME} PUBLIC $<$<COMPILE_LANGUAGE:ASM>:-mnmc4-fixed;-Werror>)	
+	
+	#list(APPEND dir_list ".")
+	
+	#set(TEST_NAME ${test_prefix}_${basename}_${board_core}_test)
+	
+	#set(test_lib "")
+	#set(ld_script ./template/${BOARD}/${BOARD}${CORE}.lds)
+	add_executable(${TEST_NAME}  ${SRC_LIST})
+	#add_dependencies(${TEST_NAME} ${test_lib})
+	
+	#MESSAGE (============ ${BSP})
+	#return()
+	target_link_directories(${TEST_NAME} PUBLIC	$ENV{${BSP}}/lib)
+		
+	#${CMAKE_CURRENT_FUNCTION_LIST_DIR}/lib		
+	#target_link_libraries(${TEST_NAME} ${test_lib} ${extra_args})
+	target_link_libraries(${TEST_NAME} c ${extra_args})
+	target_include_directories(${TEST_NAME} PUBLIC $ENV{BSP}/include)
+	
+		#-T${CMAKE_CURRENT_SOURCE_DIR}/templates/${LDS} 
+	string(REPLACE " " ";" CLIBS ${LIBS})
+	target_link_options(${TEST_NAME} PUBLIC	-T${CMAKE_CURRENT_SOURCE_DIR}/templates/${LDS} ${CLIBS} )
+	
+	
+	
+	if ( BOARD STREQUAL "mc5103" OR BOARD STREQUAL "mb7707")
+		target_compile_options(${TEST_NAME} PUBLIC $<$<COMPILE_LANGUAGE:C,CXX>:-mnmc3;-O2>)	
+		target_compile_options(${TEST_NAME} PUBLIC $<$<COMPILE_LANGUAGE:ASM>:-mnmc3;-Werror>)	
+	elseif ( BOARD STREQUAL "mc12101" AND CORE STREQUAL "-nmpu1")
+		target_compile_options(${TEST_NAME} PUBLIC $<$<COMPILE_LANGUAGE:C,CXX>:-mnmc4-fixed;-O2>)	
+		target_compile_options(${TEST_NAME} PUBLIC $<$<COMPILE_LANGUAGE:ASM>:-mnmc4-fixed;-Werror>)	
+	elseif ( BOARD STREQUAL "mc12101" AND CORE STREQUAL "-nmpu0")
+		target_compile_options(${TEST_NAME} PUBLIC $<$<COMPILE_LANGUAGE:C,CXX>:-mnmc4-float;-O2>)	
+		target_compile_options(${TEST_NAME} PUBLIC $<$<COMPILE_LANGUAGE:ASM>:-mnmc4-float;-Werror>)	
+	elseif ( BOARD STREQUAL "mc12705")
+		target_compile_options(${TEST_NAME} PUBLIC $<$<COMPILE_LANGUAGE:C,CXX>:-mnmc4-float;-O2>)	
+		target_compile_options(${TEST_NAME} PUBLIC $<$<COMPILE_LANGUAGE:ASM>:-mnmc4-float;-Werror>)
+	elseif ( BOARD STREQUAL "qemu")
+		target_compile_options(${TEST_NAME} PUBLIC $<$<COMPILE_LANGUAGE:C,CXX>:-mnmc4;-O2>)	
+		target_compile_options(${TEST_NAME} PUBLIC $<$<COMPILE_LANGUAGE:ASM>:-mnmc4;-Werror>)
+	endif()
+	
+	#set(OPTS  ${RUNOPT} )
+	
+	string(REPLACE "-v" "" CRUNOPT ${RUNOPT})
+	string(REPLACE " " ";" OPTS ${CRUNOPT})
+	
+	#list(LENGTH SEXY_LIST len)
+	#message (---------= ${SEXY_LIST}  ${len})
+	
+	#return()
+	
+	#message( "##############${OPTS}")
+	#return()
+	add_test(NAME ${TEST_NAME} COMMAND ${RUNNER} $<TARGET_FILE:${TEST_NAME}> ${OPTS})
+	
 	
 	#target_include_directories(${TEST_NAME} PUBLIC include)
 endfunction()
@@ -161,20 +207,37 @@ endfunction()
 set(CMAKE_TOOLCHAIN_FILE "../nmc-gcc-compile.cmake")
 project(${TEST_NAME} VERSION 0.1.0 LANGUAGES CXX C ASM)
 
-set(steps_risc step01 step02 step03 step03a step04 step04a) 
-set(steps_fixed step05 step06 step06a step06b step07 step08 step09 step10 step11 step12 step13 step13a step14) 
-set(steps_float steps-float/stepf01 steps-float/stepf02 steps-float/stepf02a steps-float/stepf02b) 
+#set(steps_risc steps_risc/step01 steps_risc/step02 steps_risc/step03 steps_risc/step03a steps_risc/step04 steps_risc/step04a) 
+#set(stepis_fixed steps_fixed/stepi05 steps_fixed/stepi06 steps_fixed/stepi06a steps_fixed/stepi06b steps_fixed/stepi07 steps_fixed/stepi08 steps_fixed/stepi09 steps_fixed/stepi10 steps_fixed/stepi11 steps_fixed/stepi12 steps_fixed/stepi13 steps_fixed/stepi13a steps_fixed/stepi14) 
+#set(steps_float steps-float/stepf01 steps-float/stepf02 steps-float/stepf02a steps-float/stepf02b) 
+file(GLOB 	 steps_risc  steps-risc/*  )
+file(GLOB 	 steps_fixed steps-fixed/* )
+file(GLOB 	 steps_float steps-float/* )
 
+#string(REPLACE )
+
+#MESSAGE(---------${CMAKE_CURRENT_LIST_DIR})
+#MESSAGE(---------${steps_risc})
+STRING(REPLACE "${CMAKE_CURRENT_LIST_DIR}/" "" steps_risc "${steps_risc}")
+STRING(REPLACE "${CMAKE_CURRENT_LIST_DIR}/" "" steps_fixed "${steps_fixed}")
+STRING(REPLACE "${CMAKE_CURRENT_LIST_DIR}/" "" steps_float "${steps_float}")
+#MESSAGE(---------${steps_risc})
+#return ()
+
+
+
+set(LDS 	"${BOARD}.lds")
+set(EXTRA_TARGETS "")
+
+if (NOT RUN)
+	set( RUNNER "${BOARD}run")
+endif()
+		
 if ( BOARD STREQUAL "mc5103")
 	set(dir_list ${steps_fixed} )
-	set(CXXFLAGS "-std=c++11 -O2 -Wall -mnmc3 -g")
+	set(CXXFLAGS " -O2 -Wall -mnmc3 -g")
 	set(LIBS  	"-Wl,--whole-archive -lmc5103lib -Wl,--no-whole-archive")
 	set(LIBSD 	"-Wl,--whole-archive -lmc5103lib -Wl,--no-whole-archive")
-	set(LDS 	"${BOARD}.lds")
-	set(RUN  	"${BOARD}run ")
-	set(RUND 	"${BOARD}run ")
-	set(TEST 	"${BOARD}run ")
-	set(MONITOR "")
 	
 	foreach(dir ${dir_list})
 		CONFIGURE_TEST(${dir} ${BOARD} "")
@@ -184,14 +247,11 @@ endif()
 
 if ( BOARD STREQUAL "mb7707")
 	set(dir_list ${steps_fixed} )
-	set(CXXFLAGS "-std=c++11 -O2 -Wall -mnmc3 -g")
+	set(CXXFLAGS " -O2 -Wall -mnmc3 -g")
 	set(LIBS  	"-Wl,--whole-archive -lmb7707lib -Wl,--no-whole-archive")
 	set(LIBSD 	"-Wl,--whole-archive -lmb7707lib -Wl,--no-whole-archive")
-	set(LDS 	"${BOARD}.lds")
-	set(RUN  	"${BOARD}run -a${MAC}")
-	set(RUND 	"${BOARD}run -a${MAC}")
-	set(TEST 	"${BOARD}run -a${MAC}")
-	set(MONITOR "")
+	set(RUNOPT  "-a${MAC} ")
+	set(RUNOPTD "-a${MAC} ")
 	
 	foreach(dir ${dir_list})
 		CONFIGURE_TEST(${dir} ${BOARD} "")
@@ -201,13 +261,12 @@ endif()
 
 if ( BOARD STREQUAL "mc12101" AND CORE STREQUAL "-nmpu1")
 	set(dir_list ${steps_risc} ${steps_fixed} )
-	set(CXXFLAGS "-std=c++11 -O2 -Wall -mnmc4-fixed -g")
-	set(LIBS  	"-lc -Wl,--whole-archive -lnm6407_io_nmc -lmc12101load_nm -Wl,--no-whole-archive")
-	set(LIBSD 	"-lc -Wl,--whole-archive -lnm6407_io_nmc -lmc12101_stub_nmc4_fixed -Wl,--no-whole-archive")
+	set(CXXFLAGS " -O2 -Wall -mnmc4-fixed -g")
+	set(LIBS  	" -lnm6407int -Wl,--whole-archive -lnm6407_io_nmc -lmc12101load_nm -Wl,--no-whole-archive")
+	set(LIBSD 	" -Wl,--whole-archive -lnm6407_io_nmc -lmc12101_stub_nmc4_fixed -Wl,--no-whole-archive")
 	set(LDS 	"${BOARD}-nmpu1.lds")
-	set(RUN  	"${BOARD}run -p -R -a1 -v")
-	set(RUND 	"${BOARD}run -p -R -a1 -v")
-	set(TEST 	"${BOARD}run -p -R -a1")
+	set(RUNOPT  "-p -R -a1 -v" )
+	set(RUNOPTD "-p -R -a1 -v" )
 	set(MONITOR "nmc-monitor")
 	
 	foreach(dir ${dir_list})
@@ -217,13 +276,15 @@ endif()
 
 if ( BOARD STREQUAL "mc12101" AND CORE STREQUAL "-nmpu0")
 	set(dir_list ${steps_risc} ${steps_float} )
-	set(CXXFLAGS "-std=c++11 -O2 -Wall -mnmc4-float -g")
-	set(LIBS  	"-lc -Wl,--whole-archive -lnm6407_io_nmc -lmc12101load_nm -Wl,--no-whole-archive")
-	set(LIBSD 	"-lc -Wl,--whole-archive -lnm6407_io_nmc -lmc12101_stub_nmc4_float -Wl,--no-whole-archive")
+	set(CXXFLAGS " -O2 -Wall -mnmc4-float -g")
+	set(LIBS  	" -lnm6407int -Wl,--whole-archive -lnm6407_io_nmc -lmc12101load_nm -Wl,--no-whole-archive")
+	set(LIBSD 	" -Wl,--whole-archive -lnm6407_io_nmc -lmc12101_stub_nmc4_float -Wl,--no-whole-archive")
 	set(LDS 	"${BOARD}-nmpu0.lds")
-	set(RUN  	"${BOARD}run -p -R -a0 -v")
-	set(RUND 	"${BOARD}run -p -R -a0 -v")
-	set(TEST 	"${BOARD}run -p -R -a0")
+	set(RUNOPT	"-p -R -a0 -v" )
+	set(RUNOPTD "-p -R -a0 -v" )
+	
+	#set( SEXY_LIST ${RUNOPT} )
+	#separate_arguments(SEXY_LIST)
 	set(MONITOR "nmc-monitor")
 	
 	foreach(dir ${dir_list})
@@ -233,14 +294,13 @@ endif()
 
 
 if ( BOARD STREQUAL "mc12705")
-	set(dir_list ${steps_risc} )
-	set(CXXFLAGS "-std=c++11 -O2 -Wall -mnmc4-float -g")
+	set(dir_list ${steps_risc} ${steps_float} )
+	set(CXXFLAGS " -O2 -Wall -mnmc4-float -g")
 	set(LIBS  	"-Wl,--whole-archive -lnm6408load_nmc -lnmc_io -Wl,--no-whole-archive")
 	set(LIBSD 	"-Wl,--whole-archive -lnm6408load_nmc -lnmc_io -lnm6408_stub -Wl,--no-whole-archive")
 	set(LDS 	"${BOARD}.lds")
-	set(RUN  	"${BOARD}run -c0 -n0 -v")
-	set(RUND 	"${BOARD}run -c0 -n0 -v")
-	set(TEST 	"${BOARD}run -c0 -n0")
+	set(RUNOPT 	"-c0 -n0 -v")
+	set(RUNOPTD "-c0 -n0 -v")
 	set(MONITOR "nmc-monitor")
 	
 	foreach(dir ${dir_list})
@@ -249,13 +309,14 @@ if ( BOARD STREQUAL "mc12705")
 endif()	
 
 if ( BOARD STREQUAL "qemu" )
-	set(dir_list "${steps_risc} ${steps_fixed} ${steps_float}")
-	set(CXXFlAGS "-std=c++11 -O2 -Wall -mnmc4 -g")
-	set(LIBS  	"-lc")
-	set(LIBSD 	"-lc")
+	set(dir_list ${steps_risc} ${steps_fixed} ${steps_float})
+	set(CXXFlAGS " -O2 -Wall -mnmc4 -g")
+	set(LIBS  	" -lc")
+	set(LIBSD 	" -lc")
 	set(LDS 	"qemu.lds")
-	set(RUN 	"nmc-qemu test.abs")
-	set(RUND 	"nmc-qemu -g 5555 $(TARGET)")
+	set(RUNNER 	"nmc-qemu")
+	set(RUNOPT 	" ")
+	set(RUNOPTD "-g 5555")
 	set(MONITOR "")
 	foreach(dir ${dir_list})
 		CONFIGURE_TEST(${dir} qemu "")
@@ -278,7 +339,6 @@ set_source_files_properties( ${s_files}
 			 COMPILE_FLAGS "-mgas -DNMC_CORE_VERSION=${NMC_CORE_VERSION}"
 			 )
 	
-
 
 
 

@@ -70,10 +70,6 @@ SECTIONS
   {
 	*libmc12101_stub_nmc4_fixed.a:*(.text)
 
-  } > Cx_IMU
-
-
-    *(.text.*);
   } > EMI
 
   .data.emi : ALIGN(0x8)

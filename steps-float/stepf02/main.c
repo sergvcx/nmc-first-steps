@@ -1,7 +1,7 @@
 #include "time.h"
 
 
-extern "C" 
+//extern "C" {
 double accmul_asm(double a, double b, double c);
 extern double buffer_a[];
 extern double buffer_b[];
@@ -29,9 +29,11 @@ int main(){
 	int *pd=(int*)&d;
 	return *(pd);
 	//return (t1-t0)/500000; 
-	//return (t1-t0); 
+	
+	return (t1-t0); 
 	//0x40345ED0-91CCF4BA
 	// 40345ED0
 	// 187
 	// mc12101run : 307 ticks
 }
+//};

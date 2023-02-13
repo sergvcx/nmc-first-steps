@@ -1,5 +1,5 @@
 #include "time.h"
-extern "C" 
+
 double accmul32_asm(double* a, double* b, double* c, double* d,int size);
 
 double accmul32_cpp(double* a, double* b, double* c,double *d, int size){

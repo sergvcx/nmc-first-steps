@@ -33,31 +33,31 @@ SECTIONS
     *(.text);
   } > NMMB0
   
-  .shlak : ALIGN(0x8)
+  .systext : ALIGN(0x8)
   {
 	*(.text.*)
   } > EMI_CPU
   
-  
-  
   .init : ALIGN(0x8)
   {
     *(.init);
-  } > NMMB0
+  } > EMI_CPU
   
   .fini : ALIGN(0x8)
   {
     *(.fini);
-  } > NMMB0
+  } > EMI_CPU
 
   .data : ALIGN(0x8)
   {
     *(.data);
   } > NMMB7
+  
   .bss : ALIGN(0x8)
   {
     *(.bss);
-  } > NMMB7
+  } > EMI_CPU
+  
   .stack : ALIGN(0x8)
   {
     *(.stack);
@@ -67,7 +67,7 @@ SECTIONS
   {
     *(.data.imu0);
     *(.data.imu0.bss);
-  } > NMMB1
+  } > NMMB0
   
   .data.imu1 : ALIGN(0x8)
   {
@@ -136,7 +136,8 @@ SECTIONS
 	. = ORIGIN(NMMB2) + LENGTH(NMMB2);
     __HEAP_2_END = .;
   } > NMMB2
-  .heap4 : ALIGN(0x8)
+  
+  .heap3 : ALIGN(0x8)
   {
     *(.heap3);
 	. = ORIGIN(NMMB3) + LENGTH(NMMB3);
