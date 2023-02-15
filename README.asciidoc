@@ -70,6 +70,9 @@ make rund
 include::./step01/step01.asciidoc[]
 
 
+link:steps-risc/README.asciidoc[steps-risc/README.asciidoc]
+link:steps-float/README.asciidoc [!!steps-float/README.asciidoc]
+link:steps-fixed/README.asciidoc [!!!steps-fixed/README.asciidoc]
 
 
 ////
