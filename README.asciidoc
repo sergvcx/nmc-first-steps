@@ -70,9 +70,9 @@ make rund
 include::./step01/step01.asciidoc[]
 
 
-link:steps-risc/README.asciidoc[steps-risc/README.asciidoc]
-link:steps-float/README.asciidoc [!!steps-float/README.asciidoc]
-link:steps-fixed/README.asciidoc [!!!steps-fixed/README.asciidoc]
+link:steps-risc/README.asciidoc [Работа со скалярным ядром]
+link:steps-float/README.asciidoc [Работа с целочисленным векторным сопроцессором]
+link:steps-fixed/README.asciidoc [Работа с сопроцессором на плавающей точке ]
 
 
 ////

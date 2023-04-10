@@ -158,12 +158,12 @@ function(CONFIGURE_TEST TEST_DIR BOARD CORE )
 		
 	#${CMAKE_CURRENT_FUNCTION_LIST_DIR}/lib		
 	#target_link_libraries(${TEST_NAME} ${test_lib} ${extra_args})
-	target_link_libraries(${TEST_NAME} c ${extra_args})
+	string(REPLACE " " ";" LIBS_LIST ${LIBS})
+	target_link_libraries(${TEST_NAME} c ${extra_args} ${LIBS_LIST} )
 	target_include_directories(${TEST_NAME} PUBLIC $ENV{BSP}/include)
 	
 		#-T${CMAKE_CURRENT_SOURCE_DIR}/templates/${LDS} 
-	string(REPLACE " " ";" CLIBS ${LIBS})
-	target_link_options(${TEST_NAME} PUBLIC	-T${CMAKE_CURRENT_SOURCE_DIR}/templates/${LDS} ${CLIBS} )
+	target_link_options(${TEST_NAME} PUBLIC	-T${CMAKE_CURRENT_SOURCE_DIR}/templates/${LDS} )
 	
 	
 	
