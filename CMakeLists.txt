@@ -80,7 +80,56 @@ endfunction()
 #
 #endfunction()
 
-function(CONFIGURE_TEST TEST_DIR BOARD CORE )	
+function(CONFIGURE_TEST IN_TEST_DIR BOARD CORE )	
+
+	get_filename_component(STEP_NAME ${IN_TEST_DIR} NAME)
+	file(GLOB 	s_files   RELATIVE ${CMAKE_CURRENT_LIST_DIR}/${IN_TEST_DIR} ${IN_TEST_DIR}/*.S)
+	file(GLOB 	cpp_files RELATIVE ${CMAKE_CURRENT_LIST_DIR}/${IN_TEST_DIR} ${IN_TEST_DIR}/*.cpp)
+	file(GLOB 	c_files   RELATIVE ${CMAKE_CURRENT_LIST_DIR}/${IN_TEST_DIR} ${IN_TEST_DIR}/*.c)
+	
+	list(APPEND SRC_LIST ${s_files})
+	list(APPEND SRC_LIST ${cpp_files})
+	list(APPEND SRC_LIST ${c_files})
+	
+	list(LENGTH SRC_LIST SRC_COUNT)
+	if (NOT SRC_COUNT  )
+		return()
+	endif()	
+	
+	#MESSAGE("=== ${SRC_LIST}")	
+	#MESSAGE("=== ${IN_TEST_DIR}")	
+	#return()
+	
+	list(JOIN SRC_LIST " " SRC_FILES) # SRC_FILES is @ argument for .in
+	
+	MESSAGE("### BOARD:${BOARD} core:${CORE} dir:${TEST_DIR} name:${STEP_NAME}") # src: ${SRC_FILES}")	
+	
+	#set(OUT_TEST_DIR ${BOARD}${CORE}/${IN_TEST_DIR})
+	set(OUT_TEST_DIR examples-${BOARD}${CORE}/${IN_TEST_DIR})
+	file(COPY ${IN_TEST_DIR} DESTINATION ${OUT_TEST_DIR}/..) # copy main.cpp & co
+	
+	if (NOT BOARD STREQUAL "x64")
+		string(TOUPPER ${BOARD} BSP) 	# BSP is @ argument for .in
+		set(TARGET test)				# TARGET is @ argument for .in
+	
+		set(GCC_EXEC_PREFIX "/cygdrive/$ENV{NMC_GCC_TOOLPATH}/nmc4-ide/lib/gcc/")
+		STRING(REPLACE "\\" "/" GCC_EXEC_PREFIX ${GCC_EXEC_PREFIX})
+		STRING(REPLACE ":" "" GCC_EXEC_PREFIX ${GCC_EXEC_PREFIX})
+		
+		configure_file ("./templates/Makefile.in"  				"${OUT_TEST_DIR}/Makefile" )
+		configure_file ("./templates/${LDS}" 					"${OUT_TEST_DIR}/${LDS}" )
+		
+		if (CMAKE_HOST_WIN32)
+			configure_file ("./templates/build.bat.in" 			"${OUT_TEST_DIR}/build.bat" )
+			configure_file ("./templates/run.bat.in"   			"${OUT_TEST_DIR}/run.bat" )
+		else()
+			configure_file ("./templates/build.sh.in"  			"${OUT_TEST_DIR}/build.sh" )
+			configure_file ("./templates/run.sh.in"   			"${OUT_TEST_DIR}/run.sh" )
+		endif()
+	endif()
+endfunction()
+
+function(CONFIGURE_TEST2 TEST_DIR BOARD CORE )	
 	#set(ARCH NM6407)
 	
 	get_filename_component(STEP_NAME ${TEST_DIR} NAME)
