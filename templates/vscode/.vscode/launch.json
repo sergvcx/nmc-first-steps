@@ -1,0 +1,56 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "nmGdbPath":"nmc-gdb",
+    "inputs":[
+        {
+            "id": "nmGdbPath",
+            "type": "promptString",
+            "default": "nmc-gdb",
+            "description": "Path to gdb"
+        },
+        {
+            "id": "nmGdbPort",
+            "type": "promptString",
+            "description": "monitor port number",
+            "default": "5556"
+        },
+        {
+            "id": "nmQemuGdbPort",
+            "type": "promptString",
+            "description": "qemu gdb port number",
+            "default": "10000"
+        }
+    ],
+    "configurations": [
+        {
+            "name": "board nmc-gdb",
+            "type": "module-debug",
+            "request": "launch",
+            "program": "${workspaceFolder}/mc12101/testd.abs",
+            "executable": "${workspaceFolder}/mc12101/testd.abs",
+            "cwd": "${workspaceFolder}",
+            "gdbpath": "nmc-gdb.exe",
+            "toolchainPrefix": "nmc",
+            "showDevDebugOutput": false, // отображать ли запросы gdb
+            "gdbTarget": ":${input:nmGdbPort}", // адрес устройства COMN (/dev/ttySN), где N - номер COM порта                                 
+            "servertype": "external",
+            "preLaunchTask": "board debug run",
+        },
+        {
+            "name": "qemu nmc-gdb",
+            "cwd": "${workspaceFolder}",
+            "type": "module-debug",
+            "executable": "${workspaceFolder}/qemu/testd.abs",
+            "request": "launch",
+            "program": "${workspaceFolder}/qemu/testd.abs",
+            "gdbTarget": ":${input:nmQemuGdbPort}",
+            "gdbpath": "nmc-gdb",
+            "toolchainPrefix": "nmc",            
+            "servertype": "external",
+            "preLaunchTask": "qemu debug run"
+        },
+    ]
+}

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
-enable_testing()
+#enable_testing()
 #SET(CMAKE_MAKE_PROGRAM d:/programs/GnuWin32/bin/make.exe FORCE )
 #string(REGEX MATCH NM(d+). ARCH_VERSION ${ARCH})
 
@@ -49,7 +49,7 @@ include(./nmc-gcc-compile.cmake)
 	
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug")
 
-set(TEST_NAME step1)
+#set(TEST_NAME step1)
 
 #set(CMAKE_BUILD_TYPE "")
 #set(CMAKE_TOOLCHAIN_FILE "nmc-gcc-compile.cmake")
@@ -71,16 +71,16 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/lib)
 
 #message("#######dirs: ${dirs}")
 #return ()
-function(CONFIGURE_EXAMPLE TEMPL_DIR SRC_DIR BSP CORE LIBS LIBSD LDS RECIPE_RUN RECIPE_RUND RECIPE_TEST RECIPE_EXTRA)	
+#function(CONFIGURE_EXAMPLE TEMPL_DIR SRC_DIR BSP CORE LIBS LIBSD LDS RECIPE_RUN RECIPE_RUND RECIPE_TEST RECIPE_EXTRA)	
 
-endfunction()
+#endfunction()
 
 #
 #function(CONFIGURE_EXAMPLE TEMPL_DIR SRC_DIR DST_DIR BSP CORE LIBS LIBSD LDS RECIPE_RUN RECIPE_RUND RECIPE_EXTRA)	
 #
 #endfunction()
 
-function(CONFIGURE_TEST IN_TEST_DIR BOARD CORE )	
+function(CONFIGURE_EXAMPLE IN_TEST_DIR OUT_TEST_DIR)	
 
 	get_filename_component(STEP_NAME ${IN_TEST_DIR} NAME)
 	file(GLOB 	s_files   RELATIVE ${CMAKE_CURRENT_LIST_DIR}/${IN_TEST_DIR} ${IN_TEST_DIR}/*.S)
@@ -100,33 +100,48 @@ function(CONFIGURE_TEST IN_TEST_DIR BOARD CORE )
 	#MESSAGE("=== ${IN_TEST_DIR}")	
 	#return()
 	
-	list(JOIN SRC_LIST " " SRC_FILES) # SRC_FILES is @ argument for .in
-	
-	MESSAGE("### BOARD:${BOARD} core:${CORE} dir:${TEST_DIR} name:${STEP_NAME}") # src: ${SRC_FILES}")	
+	list(JOIN SRC_LIST " ../" SRC_FILES) # SRC_FILES is @ argument for .in
+	set (SRC_FILES "../${SRC_FILES}" )
+	#MESSAGE("### BOARD:${BOARD} core:${CORE} dir:${TEST_DIR} name:${STEP_NAME}") # src: ${SRC_FILES}")	
+	MESSAGE("### BOARD:${BOARD} core:${CORE} in:${IN_TEST_DIR} out:${OUT_TEST_DIR}") # src: ${SRC_FILES}")	
 	
 	#set(OUT_TEST_DIR ${BOARD}${CORE}/${IN_TEST_DIR})
-	set(OUT_TEST_DIR examples-${BOARD}${CORE}/${IN_TEST_DIR})
-	file(COPY ${IN_TEST_DIR} DESTINATION ${OUT_TEST_DIR}/..) # copy main.cpp & co
+	#set(OUT_TEST_DIR examples-${BOARD}${CORE}/${IN_TEST_DIR})
+	#set(OUT_TEST_DIR examples-${BOARD}${CORE}/${IN_TEST_DIR})
+	set(OUT_MAKE_DIR $(OUT_TEST_DIR)/${BOARD})
 	
-	if (NOT BOARD STREQUAL "x64")
-		string(TOUPPER ${BOARD} BSP) 	# BSP is @ argument for .in
-		set(TARGET test)				# TARGET is @ argument for .in
+	#file(COPY ${IN_TEST_DIR} DESTINATION ${OUT_TEST_DIR}/..) # copy main.cpp & co
+	#file(COPY ${IN_TEST_DIR} DESTINATION ${OUT_TEST_DIR}/..)  # copy main.cpp & co .. net to prevent  \nmpu0\steps-float\stepf02\stepf02
 	
-		set(GCC_EXEC_PREFIX "/cygdrive/$ENV{NMC_GCC_TOOLPATH}/nmc4-ide/lib/gcc/")
-		STRING(REPLACE "\\" "/" GCC_EXEC_PREFIX ${GCC_EXEC_PREFIX})
-		STRING(REPLACE ":" "" GCC_EXEC_PREFIX ${GCC_EXEC_PREFIX})
-		
-		configure_file ("./templates/Makefile.in"  				"${OUT_TEST_DIR}/Makefile" )
-		configure_file ("./templates/${LDS}" 					"${OUT_TEST_DIR}/${LDS}" )
-		
-		if (CMAKE_HOST_WIN32)
-			configure_file ("./templates/build.bat.in" 			"${OUT_TEST_DIR}/build.bat" )
-			configure_file ("./templates/run.bat.in"   			"${OUT_TEST_DIR}/run.bat" )
-		else()
-			configure_file ("./templates/build.sh.in"  			"${OUT_TEST_DIR}/build.sh" )
-			configure_file ("./templates/run.sh.in"   			"${OUT_TEST_DIR}/run.sh" )
-		endif()
-	endif()
+	configure_file ("./include/printx.hs"	"first-steps/include/printx.hs" )
+	
+	foreach (src ${SRC_LIST})
+		configure_file ("./${IN_TEST_DIR}/${src}"	"${OUT_TEST_DIR}/${src}" )
+	endforeach()
+	
+	string(TOUPPER ${BOARD} BSP) 	# BSP    is @ argument for .in
+	set(TARGET test)				# TARGET is @ argument for .in
+
+	#set(GCC_EXEC_PREFIX "/cygdrive/$ENV{NMC_GCC_TOOLPATH}/nmc4-ide/lib/gcc/")
+#	#STRING(REPLACE "\\" "/" GCC_EXEC_PREFIX ${GCC_EXEC_PREFIX})
+#	#STRING(REPLACE ":" "" GCC_EXEC_PREFIX ${GCC_EXEC_PREFIX})
+#	
+	configure_file ("./templates/Makefile.in"  				"${OUT_TEST_DIR}/${BOARD}/Makefile" )
+	configure_file ("./templates/${LDS}" 					"${OUT_TEST_DIR}/${BOARD}/${LDS}" )
+	
+	configure_file ("./templates/vscode/Makefile" 				"${OUT_TEST_DIR}/Makefile" )
+	configure_file ("./templates/vscode/.vscode/launch.json" 	"${OUT_TEST_DIR}/.vscode/launch.json" 	COPYONLY)
+	configure_file ("./templates/vscode/.vscode/settings.json" 	"${OUT_TEST_DIR}/.vscode/settings.json" COPYONLY)
+	configure_file ("./templates/vscode/.vscode/tasks.json" 	"${OUT_TEST_DIR}/.vscode/tasks.json" 	COPYONLY)
+#	
+#	if (CMAKE_HOST_WIN32)
+#		configure_file ("./templates/build.bat.in" 			"${OUT_TEST_DIR}/${BOARD}/build.bat" )
+#		configure_file ("./templates/run.bat.in"   			"${OUT_TEST_DIR}/${BOARD}/run.bat" )
+#	else()
+#		configure_file ("./templates/build.sh.in"  			"${OUT_TEST_DIR}/${BOARD}/build.sh" )
+#		configure_file ("./templates/run.sh.in"   			"${OUT_TEST_DIR}/${BOARD}/run.sh" )
+#	endif()
+
 endfunction()
 
 function(CONFIGURE_TEST2 TEST_DIR BOARD CORE )	
@@ -165,6 +180,7 @@ function(CONFIGURE_TEST2 TEST_DIR BOARD CORE )
 	set(GCC_EXEC_PREFIX "/cygdrive/$ENV{NMC_GCC_TOOLPATH}/nmc4-ide/lib/gcc/")
 	STRING(REPLACE "\\" "/" GCC_EXEC_PREFIX ${GCC_EXEC_PREFIX})
 	STRING(REPLACE ":" "" GCC_EXEC_PREFIX ${GCC_EXEC_PREFIX})
+	
 	
 	configure_file ("./templates/Makefile.in"  			"${TEST_DIR}/${BOARD}${CORE}/Makefile" )
 	configure_file ("./templates/${LDS}" 				"${TEST_DIR}/${BOARD}${CORE}/${LDS}" )
@@ -253,8 +269,8 @@ endfunction()
 
 
 
-set(CMAKE_TOOLCHAIN_FILE "../nmc-gcc-compile.cmake")
-project(${TEST_NAME} VERSION 0.1.0 LANGUAGES CXX C ASM)
+set(CMAKE_TOOLCHAIN_FILE "./nmc-gcc-compile.cmake")
+project(nmc_first_steps VERSION 0.1.0 LANGUAGES CXX C ASM)
 
 #set(steps_risc steps_risc/step01 steps_risc/step02 steps_risc/step03 steps_risc/step03a steps_risc/step04 steps_risc/step04a) 
 #set(stepis_fixed steps_fixed/stepi05 steps_fixed/stepi06 steps_fixed/stepi06a steps_fixed/stepi06b steps_fixed/stepi07 steps_fixed/stepi08 steps_fixed/stepi09 steps_fixed/stepi10 steps_fixed/stepi11 steps_fixed/stepi12 steps_fixed/stepi13 steps_fixed/stepi13a steps_fixed/stepi14) 
@@ -289,7 +305,7 @@ if ( BOARD STREQUAL "mc5103")
 	set(LIBSD 	"-Wl,--whole-archive -lmc5103lib -Wl,--no-whole-archive")
 	
 	foreach(dir ${dir_list})
-		CONFIGURE_TEST(${dir} ${BOARD} "")
+		CONFIGURE_EXAMPLE(${dir} ${BOARD} "")
     endforeach()
 endif()	
 
@@ -303,42 +319,86 @@ if ( BOARD STREQUAL "mb7707")
 	set(RUNOPTD "-a${MAC} ")
 	
 	foreach(dir ${dir_list})
-		CONFIGURE_TEST(${dir} ${BOARD} "")
+		CONFIGURE_EXAMPLE(${dir} ${BOARD} "")
     endforeach()
 endif()	
 
 
-if ( BOARD STREQUAL "mc12101" AND CORE STREQUAL "-nmpu1")
-	set(dir_list ${steps_risc} ${steps_fixed} )
-	set(CXXFLAGS " -O2 -Wall -mnmc4-fixed -g")
-	set(LIBS  	" -lnm6407int -Wl,--whole-archive -lnm6407_io_nmc -lmc12101load_nm -Wl,--no-whole-archive")
-	set(LIBSD 	" -Wl,--whole-archive -lnm6407_io_nmc -lmc12101_stub_nmc4_fixed -Wl,--no-whole-archive")
-	set(LDS 	"${BOARD}-nmpu1.lds")
-	set(RUNOPT  "-p -R -a1 -v" )
-	set(RUNOPTD "-p -R -a1 -v" )
-	set(MONITOR "nmc-monitor")
-	
-	foreach(dir ${dir_list})
-		CONFIGURE_TEST(${dir} ${BOARD} "-nmpu1")
-    endforeach()
-endif()	
-
-if ( BOARD STREQUAL "mc12101" AND CORE STREQUAL "-nmpu0")
+if ( MC12101)
+	set(BOARD "mc12101")
+	set(CORE "-nmpu0")
 	set(dir_list ${steps_risc} ${steps_float} )
 	set(CXXFLAGS " -O2 -Wall -mnmc4-float -g")
 	set(LIBS  	" -lnm6407int -Wl,--whole-archive -lnm6407_io_nmc -lmc12101load_nm -Wl,--no-whole-archive")
-	set(LIBSD 	" -Wl,--whole-archive -lnm6407_io_nmc -lmc12101_stub_nmc4_float -Wl,--no-whole-archive")
+	set(LIBSD 	" -lnm6407int -Wl,--whole-archive -lnm6407_io_nmc -lmc12101load_nm -lmc12101_stub_nmc4_float -Wl,--no-whole-archive")
+	#set(LIBSQ 	" -Wl,--whole-archive -lmc12101load_nm -Wl,--no-whole-archive")
 	set(LDS 	"${BOARD}-nmpu0.lds")
-	set(RUNOPT	"-p -R -a0 -v" )
-	set(RUNOPTD "-p -R -a0 -v" )
-	
-	#set( SEXY_LIST ${RUNOPT} )
-	#separate_arguments(SEXY_LIST)
-	set(MONITOR "nmc-monitor")
+	set(RUN		"mc12101run -p -R -a0 -v" )
+	set(RUND 	"mc12101run -p -R -a0 -v" )
+	#set(QEMU	"nmc-qemu" )
+	#set(QEMUDBG "nmc-qemu -g 1000" )
+	set(TARGETS "$(TARGET) $(TARGETD)")
+	set(MONITOR "monitor:\n\tnm_gdb_monitor_mc12101")
+	set(GDB		"gdb:\n\tnmc-gdb  $(TARGETD)")
+	foreach(dir ${dir_list})
+		CONFIGURE_EXAMPLE(${dir} first-steps/${dir})
+	#	#CONFIGURE_TEST(${dir} ${BOARD} "-nmpu0")
+    endforeach()
+
+
+
+	set(CORE "-nmpu1")
+	set(dir_list ${steps_fixed} )
+	set(CXXFLAGS " -O2 -Wall -mnmc4-fixed -g")
+	set(LIBS  	" -lnm6407int -Wl,--whole-archive -lnm6407_io_nmc -lmc12101load_nm -Wl,--no-whole-archive")
+	set(LIBSD 	" -lnm6407int -Wl,--whole-archive -lnm6407_io_nmc -lmc12101load_nm -lmc12101_stub_nmc4_fixed -Wl,--no-whole-archive")
+	#set(LIBSQ 	" -Wl,--whole-archive -lmc12101load_nm -Wl,--no-whole-archive")
+	set(LDS 	"${BOARD}-nmpu1.lds")
+	set(RUN  	"mc12101run -p -R -a1 -v" )
+	set(RUND 	"mc12101run -p -R -a1 -v" )
+	#set(QEMU	"nmc-qemu" )
+	#set(QEMUDBG "nmc-qemu -g 1000" )
+	set(TARGETS $(TARGET) $(TARGETD))
+	set(MONITOR "monitor:\n\tnm_gdb_monitor_mc12101")
+	set(GDB		"gdb:\n\tnmc-gdb  $(TARGETD)")
+
 	
 	foreach(dir ${dir_list})
-		CONFIGURE_TEST(${dir} ${BOARD} "-nmpu0")
+		#CONFIGURE_TEST(${dir} ${BOARD} "-nmpu1")
+		CONFIGURE_EXAMPLE(${dir} first-steps/${dir})
     endforeach()
+#endif()	
+
+#if ( BOARD STREQUAL "mc12101" AND CORE STREQUAL "-nmpu0")
+	
+	#set(BOARD qemu-f)
+	#set(dir_list ${steps_risc} ${steps_float})
+	#set(CXXFlAGS " -O2 -Wall -mnmc4-float -g")
+	#set(LIBS  	" -lc")
+	#set(LIBSD 	" -lc")
+	#set(LDS 	"qemu-nm6407f.lds")
+	#set(RUNNER 	"nmc-qemu")
+	#set(RUNOPT 	" ")
+	#set(RUNOPTD "-g 5555")
+	#set(MONITOR "")
+	#foreach(dir ${dir_list})
+	#	CONFIGURE_EXAMPLE(${dir} qemu "")
+    #endforeach()
+	
+	#set(BOARD qemu-i)
+	#set(dir_list ${steps_risc} ${steps_fixed} )
+	#set(CXXFlAGS " -O2 -Wall -mnmc4-fixed -g")
+	#set(LIBS  	" -lc")
+	#set(LIBSD 	" -lc")
+	#set(LDS 	"qemu-nm6407i.lds")
+	#set(RUNNER 	"nmc-qemu")
+	#set(RUNOPT 	" ")
+	#set(RUNOPTD "-g 5555")
+	#set(MONITOR "")
+	#foreach(dir ${dir_list})
+	#	CONFIGURE_EXAMPLE(${dir} qemu "")
+    #endforeach()
+	
 endif()	
 
 
@@ -351,30 +411,37 @@ if ( BOARD STREQUAL "mc12705")
 	set(RUNOPT 	"-c0 -n0 -v")
 	set(RUNOPTD "-c0 -n0 -v")
 	set(MONITOR "nmc-monitor")
+	set(TARGETS $(TARGET) $(TARGETD))
 	
 	foreach(dir ${dir_list})
-		CONFIGURE_TEST(${dir} ${BOARD} "")
+		CONFIGURE_EXAMPLE(${dir} ${BOARD} "")
     endforeach()
 endif()	
 
-if ( BOARD STREQUAL "qemu" )
+if ( QEMU )
+	set(BOARD "qemu")
 	set(dir_list ${steps_risc} ${steps_fixed} ${steps_float})
 	set(CXXFlAGS " -O2 -Wall -mnmc4 -g")
 	set(LIBS  	" -lc")
 	set(LIBSD 	" -lc")
 	set(LDS 	"qemu.lds")
-	set(RUNNER 	"nmc-qemu")
-	set(RUNOPT 	" ")
-	set(RUNOPTD "-g 5555")
+	
+	set(RUN  	"nmc-qemu " )
+	set(RUND 	"nmc-qemu -g 10000" )
+	
+	set(TARGETS $(TARGET))
 	set(MONITOR "")
+	set(GDB		"gdb:\n\tnmc-gdb  -ex \"target remote :10000\" $(TARGETD)")
+
+
 	foreach(dir ${dir_list})
-		CONFIGURE_TEST(${dir} qemu "")
+		CONFIGURE_EXAMPLE(${dir} first-steps/${dir})
     endforeach()
 endif()	
 
 	
 
-
+configure_file ("./README.md"  			"first-steps/README.md" )
 
 #string(SUBSTRING ${ARCH} 2 4 NMC_CORE_VERSION )			 
 

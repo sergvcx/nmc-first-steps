@@ -1,4 +1,5 @@
 .global _ReverseBits
+.p2align 3            	  	// директива для выравнивания секции по  чётному адресу.	
 .data	      // весовые коэффициенты для перестановки битов
     Weights: .quad          1<<63, 1<<61, 1<<59, 1<<57, \
                             1<<55, 1<<53, 1<<51, 1<<49, \
@@ -19,15 +20,12 @@
 	
 
 
-.macro NB1_SB nb1_,sb_
+.macro SET reg,val
 #if __NM4__== 0
-	nb1 = \nb1_; 
-	sb  = \sb_;
+	\reg = \val; 
 #else
-	sir = \nb1_; 
-	nb1 = sir;   
-	sir = \sb_;	
-	sb  = sir;
+	sir = \val; 
+	\reg = sir;   
 #endif
 .endm
 
@@ -40,7 +38,8 @@ _ReverseBits:
 			
 	//nb1 = 0FFFFFFFFh; // 64 столбца
 	//sb  = 0FFFFFFFFh; // 32 строки
-	NB1_SB 0FFFFFFFFh,0FFFFFFFFh
+	SET nb1, 0FFFFFFFFh
+	SET sb , 0FFFFFFFFh
 		
 	// загрузка первого набора весовых коэффициентов в рабочую матрицу
 	rep 32 wfifo = [ar0++],ftw, wtw;

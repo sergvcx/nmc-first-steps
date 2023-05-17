@@ -14,34 +14,33 @@ LIBS     = @LIBS@
 LIBSD    = @LIBSD@ 
 LDFLAGS  = -Wl,-Map=@TARGET@.map  -Wl,-T@LDS@
 LDFLAGSD = -Wl,-Map=@TARGET@d.map -Wl,-T@LDS@ 
-INC_DIRS = -I"$(@BSP@)/include" 
+INC_DIRS = -I"$(@BSP@)/include" -I../../../include -I..
 LIB_DIRS = -L"$(@BSP@)/lib" 
 SOURCES  = @SRC_FILES@
 
 .DEFAULT_GOAL := all
 
-all: $(TARGET) $(TARGETD)
+all: @TARGETS@
 
 $(TARGET): $(SOURCES) Makefile 
-	@echo ----------------------
+	@echo ------ build release --------------
 	$(CC)  -o$(TARGET) $(CXXFLAGS) $(LDFLAGS)  $(INC_DIRS) $(LIB_DIRS)  $(SOURCES) $(LIBS)
+	nmc-objdump -D $(TARGET) > dasm.txt
 
 $(TARGETD): $(SOURCES) Makefile 
-	@echo ----------------------
+	@echo ------ build debug ----------------
 	$(CC)  -o$(TARGETD) $(CXXFLAGS) $(LDFLAGSD) $(INC_DIRS) $(LIB_DIRS) $(SOURCES) $(LIBSD) 
-	
+
+
 run: $(TARGET)
-	@RUNNER@ @RUNOPT@ $(TARGET)
+	@RUN@ $(TARGET)
 
 rund: $(TARGETD) 
-	@RUNNER@ @RUNOPTD@ $(TARGETD)
+	@RUND@ $(TARGETD)
 
-# set path to MinGW/bin    For example:  SET PATH=%PATH%;d:\SDK\msys64\mingw64\bin\
-monitor:
-	@MONITOR@
+@MONITOR@
 	
-gdb :	
-	nmc-gdb  $(TARGETD)
+@GDB@
 
 
 clean: 

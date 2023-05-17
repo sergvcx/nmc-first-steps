@@ -1,5 +1,6 @@
 .global _accmul32_asm
 
+.p2align 3            	  	// директива для выравнивания секции по  чётному адресу.	
 .data
 	result: .quad
 

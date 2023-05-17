@@ -1,13 +1,13 @@
-export GCC_EXEC_PREFIX=/cygdrive/C/Program Files/Module/NMC-SDK/nmc4-ide/lib/gcc/
-$(info  $(GCC_EXEC_PREFIX))
-PATH:=$(NMC_GCC_TOOLPATH)\nmc4-ide\bin;$(NMC_GCC_TOOLPATH)\nmc4-ide\lib;$(PATH)
+#export GCC_EXEC_PREFIX=/cygdrive/C/Program Files/Module/NMC-SDK/nmc4-ide/lib/gcc/
+#$(info  $(GCC_EXEC_PREFIX))
+#PATH:=$(NMC_GCC_TOOLPATH)\nmc4-ide\bin;$(NMC_GCC_TOOLPATH)\nmc4-ide\lib;$(PATH)
 
-shell=cmd
+#shell=cmd
 
 mc12101:
-	cmake -B build -G "Unix Makefiles" -D BOARD=mc12101 -D CORE=-nmpu1  
-	cmake -B build -G "Unix Makefiles" -D BOARD=mc12101 -D CORE=-nmpu0
-	cmake --build build
+	cmake -B build_$@ -G "Unix Makefiles" -DMC12101=ON -DQEMU=ON
+	cmake --build build_$@
+#	cmake -B build -G "Unix Makefiles" -D BOARD=mc12101 -D CORE=-nmpu0
 
 qemu:
 	cmake -B build_$@      -G "Unix Makefiles" -D BOARD=$@
