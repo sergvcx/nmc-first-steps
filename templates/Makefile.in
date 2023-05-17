@@ -10,6 +10,7 @@ TARGETD  = @TARGET@d.abs
 CC       = nmc-gcc
 AS       = nmc-gcc
 CXXFLAGS = @CXXFLAGS@
+CXXFLAGSD= @CXXFLAGSD@
 LIBS     = @LIBS@
 LIBSD    = @LIBSD@ 
 LDFLAGS  = -Wl,-Map=@TARGET@.map  -Wl,-T@LDS@
@@ -22,21 +23,20 @@ SOURCES  = @SRC_FILES@
 
 all: @TARGETS@
 
-$(TARGET): $(SOURCES) Makefile 
+$(TARGET): $(SOURCES) Makefile $(LDS) 
 	@echo ------ build release --------------
 	$(CC)  -o$(TARGET) $(CXXFLAGS) $(LDFLAGS)  $(INC_DIRS) $(LIB_DIRS)  $(SOURCES) $(LIBS)
 	nmc-objdump -D $(TARGET) > dasm.txt
 
-$(TARGETD): $(SOURCES) Makefile 
+$(TARGETD): $(SOURCES) Makefile $(LDS) 
 	@echo ------ build debug ----------------
-	$(CC)  -o$(TARGETD) $(CXXFLAGS) $(LDFLAGSD) $(INC_DIRS) $(LIB_DIRS) $(SOURCES) $(LIBSD) 
+	$(CC)  -o$(TARGETD) $(CXXFLAGSD) $(LDFLAGSD) $(INC_DIRS) $(LIB_DIRS) $(SOURCES) $(LIBSD) 
+	nmc-objdump -D $(TARGET) > dasmd.txt
 
 
-run: $(TARGET)
-	@RUN@ $(TARGET)
+@RUN@ 
 
-rund: $(TARGETD) 
-	@RUND@ $(TARGETD)
+@RUND@ 
 
 @MONITOR@
 	
@@ -44,6 +44,6 @@ rund: $(TARGETD)
 
 
 clean: 
-	-$(OS_RM) *.abs *.elf *.map 
+	-$(OS_RM) *.abs *.elf *.map *.txt
 	
 

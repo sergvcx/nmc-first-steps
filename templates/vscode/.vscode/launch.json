@@ -26,7 +26,7 @@
     ],
     "configurations": [
         {
-            "name": "board nmc-gdb",
+            "name": "board",
             "type": "module-debug",
             "request": "launch",
             "program": "${workspaceFolder}/mc12101/testd.abs",
@@ -40,7 +40,7 @@
             "preLaunchTask": "board debug run",
         },
         {
-            "name": "qemu nmc-gdb",
+            "name": "nmc-qemu",
             "cwd": "${workspaceFolder}",
             "type": "module-debug",
             "executable": "${workspaceFolder}/qemu/testd.abs",

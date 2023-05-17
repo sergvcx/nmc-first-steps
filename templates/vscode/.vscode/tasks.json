@@ -19,13 +19,7 @@
             "group": "build",
             "args": [ "board"  ]
         },
-        {
-            "label": "build board debug",
-            "type": "shell",
-            "command": "make",
-            "group": "build",
-            "args": [ "testd.abs"  ]
-        },
+        
         {
             "label": "build qemu",
             "type": "shell",
