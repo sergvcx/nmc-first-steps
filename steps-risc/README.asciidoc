@@ -1,4 +1,12 @@
 = Работа со скалярным RISC процессором 
 
-link:step01/README.asciidoc [Урок 1: Простейшая Программа на Языке Ассемблера ]
+
+include::./step00/README.asciidoc[leveloffset=+1]
+include::./step00a_printf/README.asciidoc[leveloffset=+1]
+include::./step01/README.asciidoc[leveloffset=+1]
+include::./step02/README.asciidoc[leveloffset=+1]
+include::./step03/README.asciidoc[leveloffset=+1]
+include::./step03a/README.asciidoc[leveloffset=+1]
+include::./step04/README.asciidoc[leveloffset=+1]
+
 

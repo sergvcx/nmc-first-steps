@@ -28,9 +28,8 @@ SECTIONS
  
   .stub : ALIGN(0x8)
   {
-    *libmc12101_stub_nmc4_float.a:*(.text)
-	*libmc12101_stub_nmc4_float.a:*(.data)
-	
+    *(.gdb*)
+    
 	*(.stub.*)
 	*(.stub_text)
   } > EMI

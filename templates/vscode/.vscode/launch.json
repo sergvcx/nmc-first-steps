@@ -15,7 +15,7 @@
             "id": "nmGdbPort",
             "type": "promptString",
             "description": "monitor port number",
-            "default": "5556"
+            "default": "5555"
         },
         {
             "id": "nmQemuGdbPort",
@@ -35,7 +35,7 @@
             "gdbpath": "nmc-gdb.exe",
             "toolchainPrefix": "nmc",
             "showDevDebugOutput": false, // отображать ли запросы gdb
-            "gdbTarget": ":${input:nmGdbPort}", // адрес устройства COMN (/dev/ttySN), где N - номер COM порта                                 
+            "gdbTarget": ":${input:nmGdbPort}",
             "servertype": "external",
             "preLaunchTask": "board debug run",
         },
@@ -48,6 +48,7 @@
             "program": "${workspaceFolder}/qemu/testd.abs",
             "gdbTarget": ":${input:nmQemuGdbPort}",
             "gdbpath": "nmc-gdb",
+            "debuggerArgs": ["-iex","set tcp connect-timeout unlimited"]
             "toolchainPrefix": "nmc",            
             "servertype": "external",
             "preLaunchTask": "qemu debug run"

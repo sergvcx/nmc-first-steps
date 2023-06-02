@@ -25,7 +25,7 @@ endif()
 if (CMAKE_HOST_WIN32)
 	STRING(REPLACE " " "\\ " NMC_GCC_TOOLPATH_SPACED $ENV{NMC_GCC_TOOLPATH})
 	set( SHELL "SHELL=cmd" )
-	set( INCLUDE_MK "-include ${NMC_GCC_TOOLPATH_SPACED}\\nmc4-ide\\include\\nmc4vars_win.mk")
+#	set( INCLUDE_MK "-include ${NMC_GCC_TOOLPATH_SPACED}\\nmc4-ide\\include\\nmc4vars_win.mk")
 	set( OS_RM "del")
 else()
  	set( OS_RM " rm -f -r")
@@ -86,10 +86,13 @@ function(CONFIGURE_EXAMPLE IN_TEST_DIR OUT_TEST_DIR)
 	file(GLOB 	s_files   RELATIVE ${CMAKE_CURRENT_LIST_DIR}/${IN_TEST_DIR} ${IN_TEST_DIR}/*.S)
 	file(GLOB 	cpp_files RELATIVE ${CMAKE_CURRENT_LIST_DIR}/${IN_TEST_DIR} ${IN_TEST_DIR}/*.cpp)
 	file(GLOB 	c_files   RELATIVE ${CMAKE_CURRENT_LIST_DIR}/${IN_TEST_DIR} ${IN_TEST_DIR}/*.c)
+	file(GLOB 	h_files   RELATIVE ${CMAKE_CURRENT_LIST_DIR}/${IN_TEST_DIR} ${IN_TEST_DIR}/*.h*)
+	
 	
 	list(APPEND SRC_LIST ${s_files})
 	list(APPEND SRC_LIST ${cpp_files})
 	list(APPEND SRC_LIST ${c_files})
+	
 	
 	list(LENGTH SRC_LIST SRC_COUNT)
 	if (NOT SRC_COUNT  )
@@ -102,6 +105,7 @@ function(CONFIGURE_EXAMPLE IN_TEST_DIR OUT_TEST_DIR)
 	
 	list(JOIN SRC_LIST " ../" SRC_FILES) # SRC_FILES is @ argument for .in
 	set (SRC_FILES "../${SRC_FILES}" )
+	
 	#MESSAGE("### BOARD:${BOARD} core:${CORE} dir:${TEST_DIR} name:${STEP_NAME}") # src: ${SRC_FILES}")	
 	MESSAGE("### BOARD:${BOARD} core:${CORE} in:${IN_TEST_DIR} out:${OUT_TEST_DIR}") # src: ${SRC_FILES}")	
 	
@@ -119,7 +123,18 @@ function(CONFIGURE_EXAMPLE IN_TEST_DIR OUT_TEST_DIR)
 		configure_file ("./${IN_TEST_DIR}/${src}"	"${OUT_TEST_DIR}/${src}" )
 	endforeach()
 	
+	foreach (src ${h_files})
+		configure_file ("./${IN_TEST_DIR}/${src}"	"${OUT_TEST_DIR}/${src}" )
+	endforeach()
+	
+	
 	string(TOUPPER ${BOARD} BSP) 	# BSP    is @ argument for .in
+	set (INCDIRS "-I../../../include -I..")
+	set (LIBDIRS "")
+	if ( NOT BSP STREQUAL "QEMU") 
+		set (INCDIRS "-I\"$(${BSP})/include\" ${INCDIRS}")
+		set (LIBDIRS "-L\"$(${BSP})/lib\"  ${LIBDIRS}")
+	endif()
 	set(TARGET test)				# TARGET is @ argument for .in
 
 	#set(GCC_EXEC_PREFIX "/cygdrive/$ENV{NMC_GCC_TOOLPATH}/nmc4-ide/lib/gcc/")
@@ -339,8 +354,8 @@ if ( MC12101)
 	set(TARGETS "$(TARGET) $(TARGETD)")
 	set(RUN		"run:  $(TARGET) \n\tmc12101run -p -R -a0 -v $(TARGET)" )
 	set(RUND 	"rund: $(TARGETD)\n\tmc12101run -p -R -a0 -v $(TARGETD)" )
-	set(MONITOR "monitor:\n\tnm_gdb_monitor_mc12101")
-	set(GDB		"gdb:\n\tnmc-gdb  $(TARGETD)")
+	set(MONITOR "monitor:\n\tnm_gdb_monitor_mc12101 0 0 5555")
+	set(GDB		"gdb:\n\tnmc-gdb -ex \"target remote :5555\" $(TARGETD)")
 	foreach(dir ${dir_list})
 		CONFIGURE_EXAMPLE(${dir} first-steps/${dir})
 	#	#CONFIGURE_TEST(${dir} ${BOARD} "-nmpu0")
@@ -359,8 +374,8 @@ if ( MC12101)
 	set(TARGETS "$(TARGET) $(TARGETD)")
 	set(RUN		"run:  $(TARGET) \n\tmc12101run -p -R -a1 -v $(TARGET)" )
 	set(RUND 	"rund: $(TARGETD)\n\tmc12101run -p -R -a1 -v $(TARGETD)" )
-	set(MONITOR "monitor:\n\tnm_gdb_monitor_mc12101")
-	set(GDB		"gdb:\n\tnmc-gdb  $(TARGETD)")
+	set(MONITOR "monitor:\n\tnm_gdb_monitor_mc12101 0 1 5555")
+	set(GDB		"gdb:\n\tnmc-gdb -ex \"target remote :5555\" $(TARGETD)")
 
 	
 	foreach(dir ${dir_list})
@@ -422,8 +437,8 @@ endif()
 if ( QEMU )
 	set(BOARD "qemu")
 	set(dir_list ${steps_risc} ${steps_fixed} ${steps_float})
-	set(CXXFlAGS  " -O2 -Wall -mnmc4 -g")
-	set(CXXFlAGSD " -O0 -Wall -mnmc4 -g")
+	set(CXXFLAGS  " -O2 -Wall -mnmc4 -g")
+	set(CXXFLAGSD " -O0 -Wall -mnmc4 -g")
 	set(LIBS  	" -lc")
 	set(LIBSD 	" -lc")
 	set(LDS 	"qemu.lds")
@@ -431,7 +446,7 @@ if ( QEMU )
 	set(RUN		"run:  $(TARGET)\n\tnmc-qemu $(TARGET)" )
 	set(RUND 	"rund: $(TARGETD)\n\tnmc-qemu -g 10000 $(TARGETD)" )
 	set(MONITOR "")
-	set(GDB		"gdb:\n\tnmc-gdb  -ex \"target remote :10000\" $(TARGETD)")
+	set(GDB		"gdb:\n\tnmc-gdb -iex \"set tcp connect-timeout unlimited\"  -ex \"target remote :10000\" $(TARGETD)")
 
 
 	foreach(dir ${dir_list})
@@ -441,7 +456,7 @@ endif()
 
 	
 
-configure_file ("./README.md"  			"first-steps/README.md" )
+configure_file ("./GettingStarted.pdf"  			"first-steps/GettingStarted.pdf" COPYONLY)
 
 #string(SUBSTRING ${ARCH} 2 4 NMC_CORE_VERSION )			 
 

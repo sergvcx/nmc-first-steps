@@ -1,5 +1,5 @@
 .global _Copy  // объявление глобальной метки _Copy
-#include "include/macros.h"	
+#include "macros.hs"	
 .section .text.AAA
 _Copy:	
     ar5 = ar7 - 2;

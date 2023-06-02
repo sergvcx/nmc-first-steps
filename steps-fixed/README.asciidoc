@@ -1,1 +1,15 @@
-= Работа с векторным процессором на плавающей точке
+= Работа с целочисленным векторным сопроцессором 
+
+
+
+include::./stepi04a/README.asciidoc[leveloffset=+1]
+include::./stepi05/README.asciidoc[leveloffset=+1]
+include::./stepi06/README.asciidoc[leveloffset=+1]
+include::./stepi07/README.asciidoc[leveloffset=+1]
+include::./stepi08/README.asciidoc[leveloffset=+1]
+include::./stepi09/README.asciidoc[leveloffset=+1]
+include::./stepi10/README.asciidoc[leveloffset=+1]
+include::./stepi11/README.asciidoc[leveloffset=+1]
+include::./stepi12/README.asciidoc[leveloffset=+1]
+include::./stepi13a/README.asciidoc[leveloffset=+1]
+include::./stepi14/README.asciidoc[leveloffset=+1]
