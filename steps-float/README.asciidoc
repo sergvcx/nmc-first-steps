@@ -1,3 +1,14 @@
+:imagesdir: steps-float/images
 = Работа с векторным процессором на плавающей точке
 
-//текст
+include::./step01-simple/README.asciidoc[leveloffset=+1]
+include::./step02-intro/README.asciidoc[leveloffset=+1]
+include::./stepf02a/README.asciidoc[leveloffset=+1]
+include::./stepf02b/README.asciidoc[leveloffset=+1]
+include::./stepf02c/README.asciidoc[leveloffset=+1]
+include::./stepf02d/README.asciidoc[leveloffset=+1]
+
+include::./stepf03/README.asciidoc[leveloffset=+1]
+include::./stepf03a/README.asciidoc[leveloffset=+1]
+include::./stepf03b/README.asciidoc[leveloffset=+1]
+

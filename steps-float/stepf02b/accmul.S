@@ -1,11 +1,16 @@
-.global _accmul32_asm
+//#include "printx.hs"
+//PRINTF1("ar0=%x\n",ar0)
+//PRINTF1("ar1=%x\n",ar1)
+//PRINTF1("ar2=%x\n",ar2)
+//PRINTF1("ar3=%x\n",ar3)
+//PRINTF1("gr3=%x\n",gr3)
 
-.p2align 3            	  	// директива для выравнивания секции по  чётному адресу.	
+.global _accmul_asm
 .data
 	result: .quad
 
 .text
-_accmul32_asm:
+_accmul_asm:
 	
 	ar5 = ar7 - 2;
 	push ar0,gr0;
@@ -13,25 +18,40 @@ _accmul32_asm:
 	push ar2,gr2;
 	push ar3,gr3;
 	
+
 	ar0 = [--ar5];	// a
 	ar1 = [--ar5];	// b
 	ar2 = [--ar5];	// c
 	ar3 = [--ar5];	// d
-	gr7 = [--ar5];	// size
-	gr7>>=5; 		// size/32
-	gr7--;			// loop counter --
-	ar5 = ar3;		// store dst address
-	next_accmul32:
+	gr3 = [--ar5];	// size
+	gr7 = gr3 >>5;  // gr7=size/32
+	gr3 = gr3<<27 ;
+	gr3 = gr3>>27 ;  // gr3=size%32
+		
+	with gr7;		
+	if =0 goto accmul_tail with gr7--;
+		
+	accmul_rep32:
 		fpu 0 rep 32 vreg0 = [ar0++]; 
 		fpu 0 rep 32 vreg1 = [ar1++]; 
 		fpu 0 rep 32 vreg2 = [ar2++]; 
+	if > delayed goto accmul_rep32 with gr7--;
 		fpu 0 .double vreg3 = vreg0*vreg1+vreg2;
 		fpu 0 rep 32 [ar3++] = vreg3;
-	if <>0 goto next_accmul32 with gr7--;
-	
-	// read first product
-	gr7 = [ar5++];
-	gr6 = [ar5];
+		
+	accmul_tail:
+	with gr3;
+	if =0 delayed goto accmul_end with gr3--;
+		vlen = gr3;
+		nul;
+		
+	fpu 0 rep vlen vreg0 = [ar0++]; 
+	fpu 0 rep vlen vreg1 = [ar1++]; 
+	fpu 0 rep vlen vreg2 = [ar2++]; 
+	fpu 0 .double vreg3 = vreg0*vreg1+vreg2;
+	fpu 0 rep vlen [ar3++] = vreg3;
+		
+	accmul_end:
 	
 	pop ar3,gr3;
 	pop ar2,gr2;

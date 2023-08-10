@@ -6,9 +6,6 @@
 :toclevels: 2
 :toc-title: Содержание
 :pagenums:
-// Set images dir
-//:imagesdir: pages/images
-:imagesdir: steps-fixed/images
 
 // Enable admotion icons
 :icons: font

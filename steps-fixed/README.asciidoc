@@ -1,3 +1,7 @@
+// Set images dir
+//:imagesdir: pages/images
+:imagesdir: steps-fixed/images
+
 = Работа с целочисленным векторным сопроцессором 
 
 
